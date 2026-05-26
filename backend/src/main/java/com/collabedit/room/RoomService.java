@@ -71,15 +71,17 @@ public class RoomService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        room.getMembers().add(user);
-        roomRepository.save(room);
+        // Idempotent join: check if user is already a member or is the owner
+        if (!room.getOwner().getId().equals(user.getId()) && !room.getMembers().contains(user)) {
+            room.getMembers().add(user);
+            roomRepository.save(room);
+        }
         return toResponse(room);
     }
 
     /**
      * Delete a room. Only the owner is allowed to delete.
-     * Because Room has cascade = ALL + orphanRemoval on files,
-     * and we clear members before deleting, this handles FK constraints.
+     * Deletes code files and room_members natively to avoid JPA constraint failures.
      */
     @Transactional
     public void deleteRoom(Long roomId, String username) {
@@ -90,17 +92,19 @@ public class RoomService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only the room owner can delete this room");
         }
 
-        // Clear the join table entries first to avoid FK constraint issues
-        room.getMembers().clear();
-        roomRepository.save(room);
+        // Delete code files first to avoid FK constraints
+        codeFileRepository.deleteByRoomId(roomId);
+        
+        // Remove all users from room_members via native query
+        roomRepository.removeAllUsersFromRoomNative(roomId);
 
-        // Now delete the room (cascades to code_files due to CascadeType.ALL + orphanRemoval)
+        // Now delete the room
         roomRepository.delete(room);
     }
 
     /**
-     * Leave a room. Removes the user from the members set.
-     * The owner cannot leave — they must delete the room instead.
+     * Leave a room. ONLY removes the specific record from the room_members table.
+     * Uses a native query to avoid JPA silent failures.
      */
     @Transactional
     public void leaveRoom(Long roomId, String username) {
@@ -114,8 +118,8 @@ public class RoomService {
                     "Room owner cannot leave. Delete the room instead.");
         }
 
-        room.getMembers().remove(user);
-        roomRepository.save(room);
+        // Directly call the native query to remove the user from the join table
+        roomRepository.removeUserFromRoomNative(roomId, user.getId());
     }
 
     public Room findByInviteCode(UUID inviteCode) {
@@ -124,13 +128,19 @@ public class RoomService {
     }
 
     private RoomResponse toResponse(Room room) {
+        // Accurately reflect unique users so the owner isn't double-counted
+        int uniqueMembers = room.getMembers().size();
+        if (!room.getMembers().contains(room.getOwner())) {
+            uniqueMembers++;
+        }
+
         return RoomResponse.builder()
                 .id(room.getId())
                 .name(room.getName())
                 .inviteCode(room.getInviteCode().toString())
                 .ownerId(room.getOwner().getId())
                 .ownerUsername(room.getOwner().getUsername())
-                .memberCount(room.getMembers().size() + 1)
+                .memberCount(uniqueMembers)
                 .createdAt(room.getCreatedAt())
                 .build();
     }

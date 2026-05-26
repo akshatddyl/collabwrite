@@ -49,22 +49,23 @@ function DashboardPage() {
     }
   };
 
-  const handleRoomRemoved = async (roomId, isOwner) => {
+  const handleDeleteRoom = async (roomId) => {
     try {
-      if (isOwner) {
-        await roomService.deleteRoom(roomId);
-        toast.success('Room deleted');
-      } else {
-        await roomService.leaveRoom(roomId);
-        toast.success('Left room');
-      }
-      // Remove from local state instantly
+      await roomService.deleteRoom(roomId);
+      toast.success('Room deleted');
       setRooms(rooms.filter((r) => r.id !== roomId));
     } catch (err) {
-      const message =
-        err.response?.data?.message ||
-        (isOwner ? 'Failed to delete room' : 'Failed to leave room');
-      toast.error(message);
+      toast.error(err.response?.data?.message || 'Failed to delete room');
+    }
+  };
+
+  const handleLeaveRoom = async (roomId) => {
+    try {
+      await roomService.leaveRoom(roomId);
+      toast.success('Left room');
+      setRooms(rooms.filter((r) => r.id !== roomId));
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to leave room');
     }
   };
 
@@ -157,7 +158,8 @@ function DashboardPage() {
               <RoomCard
                 key={room.id}
                 room={room}
-                onRoomRemoved={handleRoomRemoved}
+                onDelete={handleDeleteRoom}
+                onLeave={handleLeaveRoom}
               />
             ))}
           </div>

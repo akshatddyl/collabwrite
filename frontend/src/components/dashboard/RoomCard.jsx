@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { formatDate } from '../../utils/helpers';
 import useStore from '../../store';
 
-function RoomCard({ room, onRoomRemoved }) {
+function RoomCard({ room, onDelete, onLeave }) {
   const navigate = useNavigate();
   const { user } = useStore();
   const [showConfirm, setShowConfirm] = useState(false);
@@ -19,7 +19,12 @@ function RoomCard({ room, onRoomRemoved }) {
   const handleConfirm = (e) => {
     e.stopPropagation();
     setShowConfirm(false);
-    onRoomRemoved(room.id, isOwner);
+    
+    if (isOwner) {
+      if (onDelete) onDelete(room.id);
+    } else {
+      if (onLeave) onLeave(room.id);
+    }
   };
 
   const handleCancel = (e) => {
