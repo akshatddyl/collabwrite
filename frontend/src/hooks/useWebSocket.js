@@ -5,18 +5,27 @@ import { WS_BASE_URL } from '../utils/constants';
 export const useWebSocket = () => {
   const wsRef = useRef(null);
   const reconnectTimeoutRef = useRef(null);
-  const {
-    user,
-    setConnectedUsers,
-    updateRemoteCursor,
-    removeRemoteCursor,
-    setEditorContent,
-    setUserColor,
-    activeFile,
-  } = useStore();
+  const roomIdRef = useRef(null);
+  const isCleanedUpRef = useRef(false);
 
   const connect = useCallback((roomId) => {
-    if (wsRef.current?.readyState === WebSocket.OPEN) return;
+    const { user } = useStore.getState();
+
+    // Prevent duplicate connections
+    if (wsRef.current?.readyState === WebSocket.OPEN ||
+        wsRef.current?.readyState === WebSocket.CONNECTING) {
+      return;
+    }
+
+    // Clear any pending reconnect
+    if (reconnectTimeoutRef.current) {
+      clearTimeout(reconnectTimeoutRef.current);
+      reconnectTimeoutRef.current = null;
+    }
+
+    // Store the roomId for reconnect logic
+    roomIdRef.current = roomId;
+    isCleanedUpRef.current = false;
 
     const ws = new WebSocket(WS_BASE_URL);
     wsRef.current = ws;
@@ -41,16 +50,23 @@ export const useWebSocket = () => {
 
     ws.onclose = () => {
       console.log('WebSocket disconnected');
-      // Auto-reconnect after 3 seconds
-      reconnectTimeoutRef.current = setTimeout(() => {
-        connect(roomId);
-      }, 3000);
+      wsRef.current = null;
+
+      // Only auto-reconnect if disconnect() was NOT called explicitly
+      // (i.e., this was an unexpected disconnect, not a cleanup)
+      if (!isCleanedUpRef.current && roomIdRef.current) {
+        reconnectTimeoutRef.current = setTimeout(() => {
+          if (!isCleanedUpRef.current) {
+            connect(roomIdRef.current);
+          }
+        }, 3000);
+      }
     };
 
     ws.onerror = (err) => {
       console.error('WebSocket error:', err);
     };
-  }, [user]);
+  }, []);
 
   const handleMessage = useCallback((msg) => {
     const store = useStore.getState();
@@ -61,11 +77,14 @@ export const useWebSocket = () => {
         break;
 
       case 'users':
+        // The server now sends a deduplicated list, but we add a
+        // client-side safety net: deduplicate by username before setting.
         store.setConnectedUsers(msg.users || []);
         break;
 
       case 'user_joined':
-        // users list will be updated via 'users' message
+        // The full user list is updated via the 'users' message that
+        // the server broadcasts immediately after a join.
         break;
 
       case 'user_left':
@@ -144,8 +163,13 @@ export const useWebSocket = () => {
   }, []);
 
   const disconnect = useCallback(() => {
+    // Mark as explicitly cleaned up so onclose doesn't auto-reconnect
+    isCleanedUpRef.current = true;
+    roomIdRef.current = null;
+
     if (reconnectTimeoutRef.current) {
       clearTimeout(reconnectTimeoutRef.current);
+      reconnectTimeoutRef.current = null;
     }
     if (wsRef.current) {
       wsRef.current.close();
@@ -153,6 +177,8 @@ export const useWebSocket = () => {
     }
   }, []);
 
+  // Cleanup on unmount — prevents ghost connections from React StrictMode
+  // double-invocations or component unmounts
   useEffect(() => {
     return () => {
       disconnect();

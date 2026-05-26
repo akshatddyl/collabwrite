@@ -26,7 +26,19 @@ export const createEditorSlice = (set) => ({
 
   setEditorContent: (content) => set({ editorContent: content }),
 
-  setConnectedUsers: (users) => set({ connectedUsers: users }),
+  /**
+   * Sets the connected users list with client-side deduplication.
+   * The server already sends a deduplicated list, but this is a safety net
+   * in case of race conditions or message ordering issues.
+   * Deduplicates by username — if duplicates exist, the last occurrence wins.
+   */
+  setConnectedUsers: (users) => {
+    const uniqueMap = new Map();
+    for (const user of users) {
+      uniqueMap.set(user.username, user);
+    }
+    set({ connectedUsers: Array.from(uniqueMap.values()) });
+  },
 
   setRemoteCursors: (cursors) => set({ remoteCursors: cursors }),
 
