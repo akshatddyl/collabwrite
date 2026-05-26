@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: collabedit-db
+    environment:
+      POSTGRES_DB: collabedit
+      POSTGRES_USER: collabedit
+      POSTGRES_PASSWORD: collabedit_secret
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - collabedit-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U collabedit"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: collabedit-backend
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/collabedit
+      SPRING_DATASOURCE_USERNAME: collabedit
+      SPRING_DATASOURCE_PASSWORD: collabedit_secret
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - collabedit-network
+
+volumes:
+  pgdata:
+
+networks:
+  collabedit-network:
+    driver: bridge
