@@ -63,27 +63,38 @@ public class EditorWebSocketHandler extends TextWebSocketHandler {
         if (userSession != null) {
             String roomId = userSession.getRoomId();
             String username = userSession.getUsername();
+
+            // Remove this specific session from the manager
             sessionManager.removeSession(session.getId());
 
-            OutgoingMessage leftMsg = OutgoingMessage.builder()
-                    .type("user_left")
-                    .username(username)
-                    .roomId(roomId)
-                    .build();
-            broadcastToRoom(roomId, leftMsg, null);
+            // Only broadcast USER_LEFT if this user has no other active session
+            // in the room (i.e., they didn't just reconnect with a new session)
+            if (!sessionManager.isUserStillInRoom(username, roomId)) {
+                OutgoingMessage leftMsg = OutgoingMessage.builder()
+                        .type("user_left")
+                        .username(username)
+                        .roomId(roomId)
+                        .build();
+                broadcastToRoom(roomId, leftMsg, null);
+            }
+
+            // Always broadcast the updated (deduplicated) user list
             broadcastUserList(roomId);
         }
-        log.info("WebSocket disconnected: {}", session.getId());
+        log.info("WebSocket disconnected: {} (status: {})", session.getId(), status);
     }
 
     private void handleJoin(WebSocketSession session, IncomingMessage msg) throws IOException {
-        sessionManager.addSession(session, msg.getUsername(), msg.getRoomId());
+        // addSession handles deduplication internally:
+        // if the user already has a session in this room, it evicts the old one
+        // and preserves the user's color.
+        String color = sessionManager.addSession(session, msg.getUsername(), msg.getRoomId());
         UserSession userSession = sessionManager.getSession(session.getId());
 
         OutgoingMessage welcomeMsg = OutgoingMessage.builder()
                 .type("welcome")
                 .username(msg.getUsername())
-                .color(userSession.getColor())
+                .color(color)
                 .roomId(msg.getRoomId())
                 .build();
         sendMessage(session, welcomeMsg);
@@ -91,10 +102,12 @@ public class EditorWebSocketHandler extends TextWebSocketHandler {
         OutgoingMessage joinMsg = OutgoingMessage.builder()
                 .type("user_joined")
                 .username(msg.getUsername())
-                .color(userSession.getColor())
+                .color(color)
                 .roomId(msg.getRoomId())
                 .build();
         broadcastToRoom(msg.getRoomId(), joinMsg, session.getId());
+
+        // Broadcast the deduplicated user list to everyone in the room
         broadcastUserList(msg.getRoomId());
     }
 
@@ -181,6 +194,7 @@ public class EditorWebSocketHandler extends TextWebSocketHandler {
     }
 
     private void broadcastUserList(String roomId) {
+        // getRoomSessions already returns a deduplicated list (one entry per username)
         List<UserSession> roomSessions = sessionManager.getRoomSessions(roomId);
         List<Map<String, Object>> users = roomSessions.stream()
                 .map(us -> {
