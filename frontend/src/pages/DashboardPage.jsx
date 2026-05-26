@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Search, Code2, Copy, Check } from 'lucide-react';
+import { Plus, Search, Code2 } from 'lucide-react';
 import Navbar from '../components/layout/Navbar';
 import RoomCard from '../components/dashboard/RoomCard';
 import CreateRoomModal from '../components/dashboard/CreateRoomModal';
@@ -12,7 +12,6 @@ function DashboardPage() {
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [joinCode, setJoinCode] = useState('');
-  const [copied, setCopied] = useState(null);
   const { rooms, setRooms } = useStore();
 
   useEffect(() => {
@@ -50,11 +49,23 @@ function DashboardPage() {
     }
   };
 
-  const copyInviteCode = (code) => {
-    navigator.clipboard.writeText(`${window.location.origin}/room/${code}`);
-    setCopied(code);
-    toast.success('Link copied!');
-    setTimeout(() => setCopied(null), 2000);
+  const handleRoomRemoved = async (roomId, isOwner) => {
+    try {
+      if (isOwner) {
+        await roomService.deleteRoom(roomId);
+        toast.success('Room deleted');
+      } else {
+        await roomService.leaveRoom(roomId);
+        toast.success('Left room');
+      }
+      // Remove from local state instantly
+      setRooms(rooms.filter((r) => r.id !== roomId));
+    } catch (err) {
+      const message =
+        err.response?.data?.message ||
+        (isOwner ? 'Failed to delete room' : 'Failed to leave room');
+      toast.error(message);
+    }
   };
 
   const filteredRooms = rooms.filter((r) =>
@@ -143,7 +154,11 @@ function DashboardPage() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredRooms.map((room) => (
-              <RoomCard key={room.id} room={room} />
+              <RoomCard
+                key={room.id}
+                room={room}
+                onRoomRemoved={handleRoomRemoved}
+              />
             ))}
           </div>
         )}

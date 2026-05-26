@@ -1,9 +1,12 @@
 package com.collabedit.room;
 
+import com.collabedit.file.CodeFile;
 import com.collabedit.user.User;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -25,13 +28,16 @@ public class Room {
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
         name = "room_members",
         joinColumns = @JoinColumn(name = "room_id"),
         inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     private Set<User> members = new HashSet<>();
+
+    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CodeFile> files = new ArrayList<>();
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -63,6 +69,8 @@ public class Room {
     public void setOwner(User owner) { this.owner = owner; }
     public Set<User> getMembers() { return members; }
     public void setMembers(Set<User> members) { this.members = members; }
+    public List<CodeFile> getFiles() { return files; }
+    public void setFiles(List<CodeFile> files) { this.files = files; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 

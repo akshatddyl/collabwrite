@@ -21,6 +21,16 @@ export const roomService = {
     return data;
   },
 
+  async deleteRoom(roomId) {
+    const { data } = await api.delete(`/rooms/${roomId}`);
+    return data;
+  },
+
+  async leaveRoom(roomId) {
+    const { data } = await api.delete(`/rooms/${roomId}/leave`);
+    return data;
+  },
+
   async getFiles(inviteCode) {
     const { data } = await api.get(`/files/room/${inviteCode}`);
     return data;
