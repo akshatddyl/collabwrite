@@ -6,6 +6,14 @@ import FileTree from '../filetree/FileTree';
 function Sidebar({ onFileSelect, onCreateFile, onRenameFile, onDeleteFile }) {
   const { connectedUsers, activeFile, files, currentRoom } = useStore();
 
+  const hostUsers = connectedUsers?.filter(
+    (u) => u.id === currentRoom?.ownerId || u.username === currentRoom?.ownerUsername
+  ) || [];
+
+  const memberUsers = connectedUsers?.filter(
+    (u) => u.id !== currentRoom?.ownerId && u.username !== currentRoom?.ownerUsername
+  ) || [];
+
   return (
     <aside className="w-64 bg-dark-800/60 backdrop-blur-xl border-r border-dark-600/20 flex flex-col h-full overflow-hidden">
       {/* Room Info */}
@@ -26,13 +34,43 @@ function Sidebar({ onFileSelect, onCreateFile, onRenameFile, onDeleteFile }) {
             Online
           </span>
         </div>
+
+        {/* HOST Section */}
+        <div className="mt-4 mb-2">
+          <h3 className="text-[10px] uppercase text-dark-400 font-semibold tracking-wider">
+            Host
+          </h3>
+        </div>
+        <div className="flex flex-wrap gap-1.5 mb-2">
+          {hostUsers?.length > 0 ? (
+            hostUsers.map((u, i) => (
+              <div key={i} className="flex items-center gap-1.5 bg-accent/20 border border-accent/30 rounded-full pl-1 pr-2.5 py-0.5">
+                <UserAvatar username={u.username} color={u.color} size="sm" />
+                <span className="text-xs font-medium text-accent-light">{u.username}</span>
+              </div>
+            ))
+          ) : (
+            <span className="text-xs text-dark-400 italic">Host offline</span>
+          )}
+        </div>
+
+        {/* MEMBERS Section */}
+        <div className="mt-4 mb-2">
+          <h3 className="text-[10px] uppercase text-dark-400 font-semibold tracking-wider">
+            Members
+          </h3>
+        </div>
         <div className="flex flex-wrap gap-1.5">
-          {connectedUsers.map((u, i) => (
-            <div key={i} className="flex items-center gap-1.5 bg-dark-700/60 rounded-full pl-1 pr-2.5 py-0.5">
-              <UserAvatar username={u.username} color={u.color} size="sm" />
-              <span className="text-xs text-dark-200">{u.username}</span>
-            </div>
-          ))}
+          {memberUsers?.length > 0 ? (
+            memberUsers.map((u, i) => (
+              <div key={i} className="flex items-center gap-1.5 bg-dark-700/60 rounded-full pl-1 pr-2.5 py-0.5">
+                <UserAvatar username={u.username} color={u.color} size="sm" />
+                <span className="text-xs text-dark-200">{u.username}</span>
+              </div>
+            ))
+          ) : (
+            <span className="text-xs text-dark-500 italic">No other members</span>
+          )}
         </div>
       </div>
 
