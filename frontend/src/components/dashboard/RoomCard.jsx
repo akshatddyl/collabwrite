@@ -34,30 +34,32 @@ function RoomCard({ room, onRoomRemoved }) {
         className="glass-card cursor-pointer group relative"
         onClick={() => navigate(`/room/${room.inviteCode}`)}
       >
-        {/* Action Button — top right */}
-        <button
-          id={`room-action-${room.id}`}
-          onClick={handleAction}
-          title={isOwner ? 'Delete room' : 'Leave room'}
-          className={`absolute top-3 right-3 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200 z-10 ${
-            isOwner
-              ? 'hover:bg-red-500/20 text-dark-400 hover:text-red-400'
-              : 'hover:bg-amber-500/20 text-dark-400 hover:text-amber-400'
-          }`}
-        >
-          {isOwner ? <Trash2 size={15} /> : <LogOut size={15} />}
-        </button>
+        {/* Action Buttons — top right */}
+        <div className="absolute top-4 right-4 flex items-center gap-2">
+          <button
+            id={`room-action-${room.id}`}
+            onClick={handleAction}
+            title={isOwner ? 'Delete room' : 'Leave room'}
+            className={`p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200 z-10 ${
+              isOwner
+                ? 'hover:bg-red-500/20 text-dark-400 hover:text-red-400'
+                : 'hover:bg-amber-500/20 text-dark-400 hover:text-amber-400'
+            }`}
+          >
+            {isOwner ? <Trash2 size={15} /> : <LogOut size={15} />}
+          </button>
+          <ArrowRight
+            size={18}
+            className="text-dark-400 group-hover:text-accent group-hover:translate-x-1 transition-all"
+          />
+        </div>
 
-        <div className="flex items-start justify-between mb-4">
+        <div className="mb-4">
           <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-accent to-purple-500 flex items-center justify-center shadow-lg shadow-accent/20">
             <span className="text-white font-bold text-sm">
               {room.name?.charAt(0).toUpperCase()}
             </span>
           </div>
-          <ArrowRight
-            size={18}
-            className="text-dark-400 group-hover:text-accent group-hover:translate-x-1 transition-all"
-          />
         </div>
 
         <h3 className="text-lg font-semibold text-dark-100 mb-1 truncate">
