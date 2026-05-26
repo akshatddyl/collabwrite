@@ -40,6 +40,15 @@ export const createEditorSlice = (set) => ({
     set({ connectedUsers: Array.from(uniqueMap.values()) });
   },
 
+  addConnectedUser: (user) => 
+    set((state) => {
+      // Deduplicate: check if user already exists
+      if (state.connectedUsers.some((u) => u.username === user.username)) {
+        return state;
+      }
+      return { connectedUsers: [...state.connectedUsers, user] };
+    }),
+
   setRemoteCursors: (cursors) => set({ remoteCursors: cursors }),
 
   updateRemoteCursor: (username, cursor) =>

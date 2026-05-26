@@ -10,4 +10,12 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
 
     @Query("SELECT r FROM Room r WHERE r.owner.id = :userId OR :userId IN (SELECT m.id FROM r.members m)")
     List<Room> findAllByUserId(@Param("userId") Long userId);
+
+    @org.springframework.data.jpa.repository.Modifying
+    @Query(value = "DELETE FROM room_members WHERE room_id = :roomId AND user_id = :userId", nativeQuery = true)
+    void removeUserFromRoomNative(@Param("roomId") Long roomId, @Param("userId") Long userId);
+
+    @org.springframework.data.jpa.repository.Modifying
+    @Query(value = "DELETE FROM room_members WHERE room_id = :roomId", nativeQuery = true)
+    void removeAllUsersFromRoomNative(@Param("roomId") Long roomId);
 }

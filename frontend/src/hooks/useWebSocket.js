@@ -83,12 +83,15 @@ export const useWebSocket = () => {
         break;
 
       case 'user_joined':
-        // The full user list is updated via the 'users' message that
-        // the server broadcasts immediately after a join.
+        store.addConnectedUser(msg.user);
         break;
 
       case 'user_left':
         store.removeRemoteCursor(msg.username);
+        // Also remove from connected users
+        useStore.setState((state) => ({
+          connectedUsers: state.connectedUsers.filter(u => u.username !== msg.username)
+        }));
         break;
 
       case 'edit':
