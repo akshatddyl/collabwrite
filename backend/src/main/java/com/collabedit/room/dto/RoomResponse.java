@@ -6,16 +6,18 @@ public class RoomResponse {
     private Long id;
     private String name;
     private String inviteCode;
+    private Long ownerId;
     private String ownerUsername;
     private int memberCount;
     private LocalDateTime createdAt;
 
     public RoomResponse() {}
 
-    public RoomResponse(Long id, String name, String inviteCode, String ownerUsername, int memberCount, LocalDateTime createdAt) {
+    public RoomResponse(Long id, String name, String inviteCode, Long ownerId, String ownerUsername, int memberCount, LocalDateTime createdAt) {
         this.id = id;
         this.name = name;
         this.inviteCode = inviteCode;
+        this.ownerId = ownerId;
         this.ownerUsername = ownerUsername;
         this.memberCount = memberCount;
         this.createdAt = createdAt;
@@ -27,6 +29,8 @@ public class RoomResponse {
     public void setName(String name) { this.name = name; }
     public String getInviteCode() { return inviteCode; }
     public void setInviteCode(String inviteCode) { this.inviteCode = inviteCode; }
+    public Long getOwnerId() { return ownerId; }
+    public void setOwnerId(Long ownerId) { this.ownerId = ownerId; }
     public String getOwnerUsername() { return ownerUsername; }
     public void setOwnerUsername(String ownerUsername) { this.ownerUsername = ownerUsername; }
     public int getMemberCount() { return memberCount; }
@@ -40,6 +44,7 @@ public class RoomResponse {
         private Long id;
         private String name;
         private String inviteCode;
+        private Long ownerId;
         private String ownerUsername;
         private int memberCount;
         private LocalDateTime createdAt;
@@ -47,12 +52,13 @@ public class RoomResponse {
         public RoomResponseBuilder id(Long id) { this.id = id; return this; }
         public RoomResponseBuilder name(String name) { this.name = name; return this; }
         public RoomResponseBuilder inviteCode(String inviteCode) { this.inviteCode = inviteCode; return this; }
+        public RoomResponseBuilder ownerId(Long ownerId) { this.ownerId = ownerId; return this; }
         public RoomResponseBuilder ownerUsername(String ownerUsername) { this.ownerUsername = ownerUsername; return this; }
         public RoomResponseBuilder memberCount(int memberCount) { this.memberCount = memberCount; return this; }
         public RoomResponseBuilder createdAt(LocalDateTime createdAt) { this.createdAt = createdAt; return this; }
 
         public RoomResponse build() {
-            return new RoomResponse(id, name, inviteCode, ownerUsername, memberCount, createdAt);
+            return new RoomResponse(id, name, inviteCode, ownerId, ownerUsername, memberCount, createdAt);
         }
     }
 }

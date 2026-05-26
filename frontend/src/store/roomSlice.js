@@ -9,5 +9,11 @@ export const createRoomSlice = (set) => ({
   addRoom: (room) =>
     set((state) => ({ rooms: [...state.rooms, room] })),
 
+  removeRoom: (roomId) =>
+    set((state) => ({
+      rooms: state.rooms.filter((r) => r.id !== roomId),
+      currentRoom: state.currentRoom?.id === roomId ? null : state.currentRoom,
+    })),
+
   clearRooms: () => set({ rooms: [], currentRoom: null }),
 });
