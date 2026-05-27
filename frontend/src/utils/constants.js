@@ -1,5 +1,5 @@
-export const API_BASE_URL = '/api';
-export const WS_BASE_URL = `ws://${window.location.hostname}:8080/ws/editor`;
+export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+export const WS_BASE_URL = import.meta.env.VITE_WS_URL || `ws://${window.location.hostname}:8080/ws/editor`;
 
 export const CURSOR_COLORS = [
   '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
