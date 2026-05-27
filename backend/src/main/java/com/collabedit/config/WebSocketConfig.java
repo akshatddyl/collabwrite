@@ -17,6 +17,6 @@ public class WebSocketConfig implements WebSocketConfigurer {
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         registry.addHandler(editorWebSocketHandler, "/ws/editor")
-                .setAllowedOrigins("*");
+                .setAllowedOrigins("http://localhost:5173", "https://collabwrite-beta.vercel.app");
     }
 }
