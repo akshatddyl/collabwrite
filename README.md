@@ -412,7 +412,6 @@ collabwrite/
 
 ```bash
 # Clone
-cd /path/to/workspace
 git clone https://github.com/akshatddyl/collabwrite.git
 cd collabwrite
 
@@ -724,7 +723,7 @@ erDiagram
 | Input validation | Bean validation (`@NotBlank`, `@Email`, `@Size`) + service guards |
 | Access control | Owner/member checks for room delete/leave semantics |
 | Data protection | Token-based API access, DB-backed persistence |
-| Secrets management | Needs improvement (move hard-coded JWT secret to env/secret manager) |
+| Secrets management | `.env.example` guidance is documented; production enforcement should require external secret stores and key rotation |
 | Rate limiting | Not implemented yet |
 
 Security best practices for next iteration:
