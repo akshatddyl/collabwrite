@@ -455,7 +455,7 @@ VITE_WS_URL=ws://localhost:8080/ws/editor
 | `VITE_WS_URL` | `ws://<host>:8080/ws/editor` | Frontend WebSocket endpoint |
 
 > [!CAUTION]
-> `backend/src/main/resources/application.properties` currently contains a hard-coded JWT secret. For production, move this to environment-driven secrets immediately.
+> Never commit runtime secrets (JWT keys, DB credentials). Keep them in environment variables or a managed secret store.
 
 ### Docker setup
 
@@ -728,7 +728,6 @@ erDiagram
 | Rate limiting | Not implemented yet |
 
 Security best practices for next iteration:
-- Remove hard-coded JWT secret from `application.properties` and inject from environment/secret manager.
 - Rotate JWT secret regularly.
 - Add refresh token/session revocation strategy.
 - Add request rate limiting on auth and room joins.
@@ -868,6 +867,7 @@ Validate code format (UUID) and ensure room exists. Join API returns errors for 
 - [x] Cursor presence visualization
 - [x] File CRUD + persistence
 - [ ] Full server-side CRDT/OT conflict resolution
+- [ ] Security hardening: externalize JWT/DB secrets and enforce secret rotation
 - [ ] Automated tests (unit/integration/e2e)
 - [ ] Coverage and quality gates in CI
 - [ ] Observability stack (metrics, tracing, alerting)
