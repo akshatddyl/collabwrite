@@ -37,14 +37,7 @@ Build once, code together instantly: secure room-based collaboration powered by 
 
 | Workspace Preview | Dashboard Preview |
 |---|---|
-| <img src="https://placehold.co/920x520/0f172a/e2e8f0?text=Workspace+Screenshot" alt="Workspace Screenshot Placeholder" /> | <img src="https://placehold.co/920x520/111827/e2e8f0?text=Dashboard+Screenshot" alt="Dashboard Screenshot Placeholder" /> |
-
-| Collaboration Demo GIF | API / State Trace Preview |
-|---|---|
-| <img src="https://placehold.co/920x420/1e293b/e2e8f0?text=Collaboration+GIF+Placeholder" alt="GIF Placeholder" /> | <img src="https://placehold.co/920x420/0b1120/e2e8f0?text=Flow+and+Telemetry+Preview" alt="Telemetry Placeholder" /> |
-
-> [!TIP]
-> Replace the placeholders above with product screenshots from `/frontend` once production UI captures are ready.
+|<img width="2016" height="1139" alt="Screenshot From 2026-06-22 10-38-40" src="https://github.com/user-attachments/assets/06e43232-6d17-4270-a07e-79e431ecd604"/>| <img width="2016" height="1139" alt="Screenshot From 2026-06-22 10-37-39" src="https://github.com/user-attachments/assets/4a83fb38-4ea2-4617-8b9e-81c402b04e7c" />
 
 ---
 
@@ -72,8 +65,6 @@ Build once, code together instantly: secure room-based collaboration powered by 
 - [Roadmap](#roadmap)
 - [Contributing](#contributing)
 - [Changelog](#changelog)
-- [License](#license)
-- [Acknowledgements](#acknowledgements)
 
 ---
 
@@ -125,7 +116,6 @@ CollabWrite is a room-based real-time collaborative coding platform focused on J
 | Reconnect handling | Session deduplication on reconnect in same room | ✅ |
 | Persistent storage | PostgreSQL via Spring Data JPA | ✅ |
 | Containerized backend | Multi-stage Docker build for Spring Boot service | ✅ |
-| Automated coverage reporting | Coverage badge intentionally marked “Not Reported” | 🚧 |
 
 ---
 
@@ -659,7 +649,8 @@ erDiagram
     USERS ||--o{ ROOMS : owns
     USERS }o--o{ ROOM_MEMBERS : joins
     ROOMS ||--o{ CODE_FILES : contains
-
+```
+```
     USERS {
       BIGINT id PK
       VARCHAR username UNIQUE
@@ -927,20 +918,3 @@ Use this structure for release notes:
 ```
 
 ---
-
-## License
-
-No root `LICENSE` file is currently present in this repository.
-
-> [!NOTE]
-> Add an explicit open-source license (for example MIT/Apache-2.0) before broad public distribution.
-
----
-
-## Acknowledgements
-
-- Spring Boot ecosystem for backend foundations.
-- Monaco Editor for production-grade in-browser editing.
-- React + Vite ecosystem for fast frontend iteration.
-- Open-source community tooling used throughout this stack.
-- Contributors and testers improving collaborative coding UX.
