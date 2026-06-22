@@ -182,7 +182,7 @@ sequenceDiagram
     participant R as Repository
     participant DB as PostgreSQL
 
-    C->>F: HTTP request with ******
+    C->>F: HTTP request with JWT authorization header
     F->>F: Validate token + set SecurityContext
     F->>RC: Forward authenticated request
     RC->>S: Execute use case
@@ -604,7 +604,7 @@ Content-Type: application/json
 
 ```http
 POST /api/rooms
-Authorization: ******
+Authorization: <JWT token>
 Content-Type: application/json
 
 {
@@ -723,7 +723,7 @@ erDiagram
 | Input validation | Bean validation (`@NotBlank`, `@Email`, `@Size`) + service guards |
 | Access control | Owner/member checks for room delete/leave semantics |
 | Data protection | Token-based API access, DB-backed persistence |
-| Secrets management | `.env.example` guidance is documented; production enforcement should require external secret stores and key rotation |
+| Secrets management | Never use example/default secrets in production; enforce managed secret storage (Vault/Secrets Manager) and mandatory key rotation |
 | Rate limiting | Not implemented yet |
 
 Security best practices for next iteration:
