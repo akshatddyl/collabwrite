@@ -460,7 +460,7 @@ VITE_WS_URL=ws://localhost:8080/ws/editor
 ### Docker setup
 
 ```bash
-cd /home/runner/work/collabwrite/collabwrite
+cd collabwrite
 docker compose up --build
 ```
 
@@ -482,7 +482,7 @@ Services:
 
 ```bash
 # 1) Start backend dependencies
-cd /home/runner/work/collabwrite/collabwrite
+cd collabwrite
 docker compose up -d postgres
 
 # 2) Run backend
@@ -728,6 +728,7 @@ erDiagram
 | Rate limiting | Not implemented yet |
 
 Security best practices for next iteration:
+- Remove hard-coded JWT secret from `application.properties` and inject from environment/secret manager.
 - Rotate JWT secret regularly.
 - Add refresh token/session revocation strategy.
 - Add request rate limiting on auth and room joins.
